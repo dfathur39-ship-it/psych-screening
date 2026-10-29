@@ -25,6 +25,7 @@ import AuditLogs from "./pages/admin/AuditLogs";
 import Export from "./pages/admin/Export";
 import Support from "./pages/admin/Support";
 import Retake from "./pages/admin/Retake";
+import AdminProfile from "./pages/admin/AdminProfile";
 import AdminLayout, { RequireAdminAuth } from "./layouts/AdminLayout";
 import MemberLayout from "./layouts/MemberLayout";
 import AdminShortcut from "./components/AdminShortcut";
@@ -71,6 +72,7 @@ function App() {
                   <Route path="/admin/categories" element={<Categories />} />
                   <Route path="/admin/audit-logs" element={<AuditLogs />} />
                   <Route path="/admin/export" element={<Export />} />
+                  <Route path="/admin/profil" element={<AdminProfile />} />
                   <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                 </Route>
               </Route>

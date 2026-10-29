@@ -106,6 +106,15 @@ export async function adminLogin(username: string, password: string) {
   return data;
 }
 
+export async function updateAdminProfile(payload: {
+  current_password: string; new_username?: string; new_password?: string;
+}) {
+  const { data } = await api.put<{ access_token: string; role: string; username: string }>(
+    "/api/admin/me/profile", payload
+  );
+  return data;
+}
+
 export async function adminLogout() {
   await api.post("/api/admin/logout");
 }

@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -305,6 +306,21 @@ class AdminOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AdminProfileUpdate(BaseModel):
+    """Ubah username dan/atau password sendiri. Selalu butuh password saat ini."""
+    current_password: str = Field(min_length=1, max_length=128)
+    new_username: Optional[str] = Field(default=None, min_length=3, max_length=100)
+    new_password: Optional[str] = Field(default=None, min_length=8, max_length=128)
+
+    @field_validator("new_username")
+    @classmethod
+    def _strip_username(cls, v):
+        v = (v or "").strip()
+        if v and not re.fullmatch(r"[A-Za-z0-9._@-]{3,100}", v):
+            raise ValueError("Username hanya boleh huruf, angka, titik, garis bawah, @, dan strip (min. 3 karakter)")
+        return v or None
 
 
 class AdminCreate(BaseModel):

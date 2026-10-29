@@ -15,6 +15,7 @@ const MENU = [
   { to: "/admin/categories", label: "Kategori Hasil" },
   { to: "/admin/audit-logs", label: "Audit Log" },
   { to: "/admin/export", label: "Export" },
+  { to: "/admin/profil", label: "Profil Saya" },
 ];
 
 export function RequireAdminAuth() {
