@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-psych_screening}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-psych_screening}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-psych_screening}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY must be set}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:8080}
+      OCR_PROVIDER: ${OCR_PROVIDER:-auto}
+      OCR_API_KEY: ${OCR_API_KEY:-}
+      VLM_PROVIDER: ${VLM_PROVIDER:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      VLM_MAX_TOKENS: ${VLM_MAX_TOKENS:-2048}
+      VLM_CONFIDENCE_THRESHOLD: ${VLM_CONFIDENCE_THRESHOLD:-0.80}
+      MAX_KTP_FILE_SIZE_MB: ${MAX_KTP_FILE_SIZE_MB:-5}
+      VLM_BASE_URL: ${VLM_BASE_URL:-}
+      VLM_API_KEY: ${VLM_API_KEY:-}
+      VLM_MODEL: ${VLM_MODEL:-}
+      VLM_TIMEOUT_S: ${VLM_TIMEOUT_S:-30}
+      VLM_AUTO_CONFIRM: ${VLM_AUTO_CONFIRM:-false}
+      VLM_AUTO_CONFIRM_MIN_CONFIDENCE: ${VLM_AUTO_CONFIRM_MIN_CONFIDENCE:-80}
+      UPLOAD_DIR: /data/uploads/ktp
+      KTP_RETENTION_DELETE_AFTER_OCR: ${KTP_RETENTION_DELETE_AFTER_OCR:-true}
+      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-5}
+      TESSERACT_CMD: ""
+      SEED_ADMIN_USERNAME: ${SEED_ADMIN_USERNAME:-superadmin}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      ENV: production
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ktp_uploads:/data/uploads/ktp
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:
+  ktp_uploads:
