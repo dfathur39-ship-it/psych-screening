@@ -9,8 +9,8 @@ export const HEART =
 export function BrandMark() {
   return (
     <span className="lp-logo">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d={HEART} />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M5 19c0-8.500 5-14 14.500-14.500C19 14 13.500 19.500 5 19zM5 19c2.500-4.500 5.500-7.500 9-9.500" />
       </svg>
     </span>
   );
@@ -56,8 +56,8 @@ export default function PublicHeader() {
         title="Keluar"
         message={
           sessionId
-            ? "Anda masih mengerjakan skrining. Keluar sekarang berarti Anda perlu mengisi data diri lagi untuk melanjutkan di perangkat ini. Jawaban yang sudah tersimpan tetap aman di server. Lanjutkan keluar?"
-            : "Anda akan keluar dari perangkat ini. Untuk masuk lagi, isi data diri yang sama (nama, email, dan nomor HP)."
+            ? "Kamu masih mengerjakan skrining. Keluar sekarang berarti kamu perlu mengisi data diri lagi untuk melanjutkan di perangkat ini. Jawaban yang sudah tersimpan tetap aman di server. Lanjutkan keluar?"
+            : "Kamu akan keluar dari perangkat ini. Untuk masuk lagi, isi data diri yang sama (nama, email, dan nomor HP)."
         }
         onConfirm={handleLogout}
         onCancel={() => setConfirmOut(false)}

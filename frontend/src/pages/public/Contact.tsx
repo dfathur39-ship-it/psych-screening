@@ -1,3 +1,4 @@
+import { WaveScene } from "../../components/Illustrations";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MessageList, Composer } from "../../components/Chat";
@@ -90,14 +91,19 @@ export default function Contact() {
 
   return (
     <main className="page-narrow">
-      <h1>Hubungi kami</h1>
-      <p className="page-lead">
-        Tanyakan apa saja soal skrining ini. Admin membalas langsung di sini.
-        Cek juga <Link to="/bantuan">halaman Bantuan</Link>, siapa tahu jawabannya sudah ada.
-      </p>
+      <div className="page-head">
+        <div>
+          <h1>Hubungi kami</h1>
+          <p className="page-lead">
+            Tanyakan apa saja soal skrining ini. Admin membalas langsung di sini.
+            Cek juga <Link to="/bantuan">halaman Bantuan</Link>, siapa tahu jawabannya sudah ada.
+          </p>
+        </div>
+        <div className="spot" aria-hidden="true"><WaveScene /></div>
+      </div>
 
       {checking ? (
-        <Spinner label="Memuat percakapan..." />
+        <Spinner label="Membuka percakapan..." />
       ) : !stored || !thread ? (
         <form className="card" onSubmit={handleCreate}>
           <div className="sender-card" aria-label="Pengirim">
@@ -109,7 +115,7 @@ export default function Contact() {
             <label htmlFor="c-msg">Pesan</label>
             <textarea id="c-msg" className="form-control" rows={4} maxLength={2000} value={message}
               onChange={(e) => setMessage(e.target.value)} required autoFocus />
-            <div className="form-hint">Admin mengenali Anda dari data diri ini dan bisa menghubungi lewat email atau nomor HP di atas.</div>
+            <div className="form-hint">Admin mengenali kamu dari data diri ini dan bisa menghubungi lewat email atau nomor HP di atas.</div>
           </div>
           <button className="btn btn-primary btn-block" type="submit" disabled={creating || !message.trim()}>
             {creating ? "Mengirim..." : "Kirim pesan"}
@@ -127,7 +133,7 @@ export default function Contact() {
             </div>
             <MessageList
               messages={thread.messages} me="visitor" theirLabel="Admin"
-              note={waiting ? "Pesan Anda sudah terkirim. Menunggu balasan admin." : undefined}
+              note={waiting ? "Pesan kamu sudah terkirim. Menunggu balasan admin." : undefined}
             />
             {thread.status === "closed" ? (
               <div className="chat-closed">
@@ -139,7 +145,7 @@ export default function Contact() {
             )}
           </div>
           <p className="form-hint" style={{ textAlign: "center", marginTop: 12 }}>
-            Anda boleh menutup halaman ini. Percakapan tetap tersimpan di perangkat ini dan balasan admin muncul saat Anda kembali.
+            Kamu boleh menutup halaman ini. Percakapan tetap tersimpan di perangkat ini dan balasan admin muncul saat kamu kembali.
           </p>
         </>
       )}
@@ -147,7 +153,7 @@ export default function Contact() {
       <ConfirmDialog
         open={confirmNew}
         title="Mulai percakapan baru"
-        message="Percakapan ini tidak akan tampil lagi di perangkat Anda. Admin tetap menyimpan riwayatnya. Lanjutkan?"
+        message="Percakapan ini tidak akan tampil lagi di perangkatmu. Admin tetap menyimpan riwayatnya. Lanjutkan?"
         onConfirm={() => { setConfirmNew(false); forget(); }}
         onCancel={() => setConfirmNew(false)}
       />

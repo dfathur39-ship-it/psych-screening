@@ -4,6 +4,8 @@ import { getErrorMessage } from "../../api/client";
 import { Spinner, useToast } from "../../components/Common";
 import { DonutChart, BarChart } from "../../components/Charts";
 import type { AdminStatistics } from "../../api/types";
+import { useAdminAuth } from "../../context/AdminAuthContext";
+import { Trio } from "../../components/Illustrations";
 
 function StatIcon({ d }: { d: string }) {
   return (
@@ -23,6 +25,7 @@ const CARDS = [
 export default function Dashboard() {
   const [stats, setStats] = useState<AdminStatistics | null>(null);
   const { showToast } = useToast();
+  const { username } = useAdminAuth();
 
   const load = () => {
     setStats(null);
@@ -31,16 +34,17 @@ export default function Dashboard() {
 
   useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!stats) return <Spinner label="Memuat statistik..." />;
+  if (!stats) return <Spinner label="Mengambil data terbaru..." />;
 
   return (
     <div>
-      <div className="admin-topbar">
-        <div>
-          <h1 style={{ marginBottom: 4 }}>Dashboard</h1>
-          <p className="page-sub">Ringkasan data skrining saat ini</p>
+      <div className="admin-hello">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1>Halo, {username}</h1>
+          <p>Ini gambaran skrining sampai hari ini.</p>
+          <button className="btn btn-secondary btn-sm" style={{ marginTop: 12 }} onClick={load}>Perbarui data</button>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={load}>Muat ulang</button>
+        <div className="spot trio" aria-hidden="true"><Trio /></div>
       </div>
 
       <div className="stat-grid">

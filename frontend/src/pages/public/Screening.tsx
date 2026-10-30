@@ -6,16 +6,17 @@ import { getErrorMessage } from "../../api/client";
 import { useToast, Spinner } from "../../components/Common";
 import FlowLayout from "../../components/FlowLayout";
 import type { QuestionPublic } from "../../api/types";
+import { ThinkScene, FormScene, RestScene } from "../../components/Illustrations";
 
 const ADVANCE_DELAY_MS = 450;
 
 function encouragement(answered: number, total: number) {
-  if (answered >= total) return "Semua sudah terjawab. Tekan Selesai untuk melihat hasil.";
+  if (answered >= total) return "Semua sudah terjawab. Tekan Selesai untuk melihat hasilnya.";
   const pct = answered / total;
-  if (pct < 0.25) return "Pilih jawaban yang paling menggambarkan Anda.";
-  if (pct < 0.5) return "Bagus, terus lanjut.";
-  if (pct < 0.75) return "Sudah lebih dari separuh.";
-  return "Hampir selesai.";
+  if (pct < 0.25) return "Pilih jawaban yang paling menggambarkan dirimu.";
+  if (pct < 0.5) return "Bagus, lanjut pelan-pelan ya.";
+  if (pct < 0.75) return "Sudah lebih dari separuh, kamu hebat.";
+  return "Sedikit lagi selesai.";
 }
 
 export default function Screening() {
@@ -42,7 +43,7 @@ export default function Screening() {
       try {
         const qs = await getSessionQuestions(sessionId);
         if (qs.length === 0) {
-          setLoadError("Belum ada pertanyaan yang tersedia untuk jabatan Anda. Silakan hubungi admin.");
+          setLoadError("Belum ada pertanyaan yang tersedia untuk jabatanmu. Silakan hubungi admin.");
           return;
         }
         setQuestions(qs);
@@ -128,7 +129,7 @@ export default function Screening() {
   }
 
   if (!questions) {
-    return <FlowLayout><Spinner label="Memuat pertanyaan..." /></FlowLayout>;
+    return <FlowLayout><Spinner label="Menyiapkan pertanyaanmu..." /></FlowLayout>;
   }
 
   const current = questions[index];
@@ -140,7 +141,7 @@ export default function Screening() {
   const handleFinish = async () => {
     const firstMissing = questions.findIndex((q) => !answers[q.id]);
     if (firstMissing >= 0) {
-      showToast(`Masih ada ${total - answeredCount} pertanyaan yang belum dijawab`, "error");
+      showToast(`Masih ada ${total - answeredCount} pertanyaan yang belum kamu jawab`, "error");
       goTo(firstMissing);
       return;
     }
@@ -157,13 +158,18 @@ export default function Screening() {
 
   return (
     <FlowLayout>
-      <div className="q-progress">
-        <div className="meter-row">
-          <span>Pertanyaan {index + 1} dari {total}</span>
-          <strong>{pct}%</strong>
+      <div className="q-progress q-head">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="meter-row">
+            <span>Pertanyaan {index + 1} dari {total}</span>
+            <strong>{answeredCount} terjawab</strong>
+          </div>
+          <div className="progress-track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><div className="progress-fill" style={{ width: `${pct}%` }} /></div>
+          <p className="q-cheer" aria-live="polite">{encouragement(answeredCount, total)}</p>
         </div>
-        <div className="progress-track"><div className="progress-fill" style={{ width: `${pct}%` }} /></div>
-        <p className="q-cheer" aria-live="polite">{encouragement(answeredCount, total)}</p>
+        <div className="spot" aria-hidden="true">
+          {pct >= 75 ? <RestScene /> : pct >= 35 ? <FormScene /> : <ThinkScene />}
+        </div>
       </div>
 
       <div className="q-dots" role="tablist" aria-label="Daftar pertanyaan">
@@ -201,7 +207,7 @@ export default function Screening() {
         <button className="btn btn-secondary" disabled={index === 0} onClick={() => goTo(index - 1)}>Sebelumnya</button>
         {isLast ? (
           <button className={`btn btn-primary ${allAnswered ? "btn-pulse" : ""}`} onClick={handleFinish} disabled={completing}>
-            {completing ? "Menyelesaikan..." : "Selesai"}
+            {completing ? "Sebentar ya..." : "Selesai"}
           </button>
         ) : (
           <button className="btn btn-primary" disabled={!answers[current.id]} onClick={() => goTo(index + 1)}>Berikutnya</button>

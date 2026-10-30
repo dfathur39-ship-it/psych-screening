@@ -60,7 +60,7 @@ export default function Retake() {
     <div>
       <div className="admin-topbar">
         <div>
-          <h1 style={{ marginBottom: 4 }}>Permintaan Mengerjakan Ulang</h1>
+          <h1 style={{ marginBottom: 4 }}>Permintaan Ulang Skrining</h1>
           <p className="page-sub">Peserta yang sudah selesai skrining dan ingin mengerjakannya lagi.</p>
         </div>
       </div>

@@ -26,7 +26,7 @@ class VisionError(RuntimeError):
     """Error provider VLM. `message` aman ditampilkan ke user (tanpa data sensitif)."""
     code = "VLM_ERROR"
     http_status = 502
-    message = "Layanan AI gagal memproses gambar."
+    message = "Foto KTP belum berhasil dibaca. Coba lagi atau isi data secara manual."
 
     def __init__(self, message: Optional[str] = None):
         self.message = message or self.message
@@ -36,36 +36,36 @@ class VisionError(RuntimeError):
 class VisionNotConfigured(VisionError):
     code = "VLM_NOT_CONFIGURED"
     http_status = 503
-    message = "Fitur scan AI belum dikonfigurasi. Silakan isi data secara manual."
+    message = "Fitur pindai KTP belum aktif. Silakan isi data secara manual."
 
 
 class VisionTimeout(VisionError):
     code = "VLM_TIMEOUT"
     http_status = 504
-    message = "Layanan AI terlalu lama merespons. Coba lagi atau isi data secara manual."
+    message = "Pembacaan KTP terlalu lama. Coba lagi atau isi data secara manual."
 
 
 class VisionRateLimited(VisionError):
     code = "VLM_RATE_LIMITED"
     http_status = 429
-    message = "Layanan AI sedang sibuk (batas permintaan tercapai). Coba lagi sebentar lagi."
+    message = "Layanan sedang ramai. Coba lagi sebentar lagi ya."
 
 
 class VisionUnavailable(VisionError):
     code = "VLM_UNAVAILABLE"
     http_status = 503
-    message = "Layanan AI tidak tersedia saat ini. Silakan isi data secara manual."
+    message = "Pindai KTP sedang tidak tersedia. Silakan isi data secara manual."
 
 
 class VisionModelUnavailable(VisionUnavailable):
     code = "VLM_MODEL_UNAVAILABLE"
-    message = "Model AI yang dikonfigurasi tidak tersedia. Silakan isi data secara manual."
+    message = "Pindai KTP sedang tidak tersedia. Silakan isi data secara manual."
 
 
 class VisionBadResponse(VisionError):
     code = "VLM_BAD_RESPONSE"
     http_status = 502
-    message = "Respons layanan AI tidak dapat dibaca. Coba scan ulang atau isi manual."
+    message = "Hasil pembacaan belum bisa dipakai. Coba pindai ulang atau isi manual."
 
 
 @dataclass

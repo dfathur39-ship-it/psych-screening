@@ -6,6 +6,7 @@ import { getErrorMessage } from "../../api/client";
 import { ConfirmDialog, Spinner } from "../../components/Common";
 import FlowLayout from "../../components/FlowLayout";
 import type { ScreeningResult } from "../../api/types";
+import { HappyScene } from "../../components/Illustrations";
 
 /** Counts up to `target` so the score lands with a little motion (skipped for reduced-motion users). */
 function useCountUp(target: number, ms = 900) {
@@ -53,23 +54,20 @@ export default function ResultPage() {
   };
 
   if (error) return <FlowLayout><div className="empty-state"><p>{error}</p></div></FlowLayout>;
-  if (!result) return <FlowLayout><Spinner label="Memuat hasil..." /></FlowLayout>;
+  if (!result) return <FlowLayout><Spinner label="Menyiapkan hasilmu..." /></FlowLayout>;
 
   return (
     <FlowLayout>
       <div className="result-card">
-        <span className="result-badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12.5l4.5 4.5L19 7.5" />
-          </svg>
-        </span>
-        <h1 className="flow-title">Terima kasih, skrining selesai</h1>
+        <div className="result-art" aria-hidden="true"><HappyScene /></div>
+        <h1 className="flow-title">Terima kasih sudah meluangkan waktu untuk mengisi skrining ini.</h1>
+        <p className="page-sub">Skor kamu</p>
         <div className="result-score">{score}</div>
         <div className="result-category">{result.category_name}</div>
         {result.message && <p className="result-message">{result.message}</p>}
         {result.recommendation && (
           <div className="result-reco">
-            <strong>Saran untuk Anda</strong>
+            <strong>Saran untukmu</strong>
             <p>{result.recommendation}</p>
           </div>
         )}
@@ -79,13 +77,13 @@ export default function ResultPage() {
           <button className="btn btn-primary btn-lg" onClick={() => void handleDone()}>Selesai</button>
           <button className="btn btn-secondary btn-lg" onClick={() => setConfirmLogout(true)}>Keluar</button>
         </div>
-        <p className="form-hint">Sudah selesai mengerjakan? Anda bisa keluar dari perangkat ini sekarang.</p>
+        <p className="form-hint">Sudah selesai? Kamu boleh keluar dari perangkat ini sekarang.</p>
       </div>
 
       <ConfirmDialog
         open={confirmLogout}
         title="Keluar"
-        message="Hasil skrining Anda sudah tersimpan di server. Anda akan keluar dari perangkat ini dan perlu mengisi data diri yang sama untuk masuk lagi nanti. Lanjutkan?"
+        message="Hasil skriningmu sudah tersimpan. Kalau keluar, kamu perlu mengisi data diri yang sama untuk masuk lagi nanti. Lanjutkan?"
         onConfirm={handleLogout}
         onCancel={() => setConfirmLogout(false)}
       />

@@ -3,18 +3,19 @@ import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { adminLogout, getSupportUnread, getRetakePendingCount } from "../api/services";
 import { usePolling } from "../hooks/usePolling";
+import { BrandMark } from "../components/PublicHeader";
 
 const MENU = [
-  { to: "/admin/dashboard", label: "Dashboard" },
+  { to: "/admin/dashboard", label: "Ringkasan" },
   { to: "/admin/participants", label: "Peserta" },
   { to: "/admin/screenings", label: "Skrining" },
   { to: "/admin/support", label: "Pesan", badge: "support" },
-  { to: "/admin/retake-requests", label: "Kerjakan Ulang", badge: "retake" },
+  { to: "/admin/retake-requests", label: "Ulang Skrining", badge: "retake" },
   { to: "/admin/positions", label: "Jabatan" },
   { to: "/admin/questions", label: "Pertanyaan" },
   { to: "/admin/categories", label: "Kategori Hasil" },
-  { to: "/admin/audit-logs", label: "Audit Log" },
-  { to: "/admin/export", label: "Export" },
+  { to: "/admin/audit-logs", label: "Riwayat Aktivitas" },
+  { to: "/admin/export", label: "Ekspor Data" },
   { to: "/admin/profil", label: "Profil Saya" },
 ];
 
@@ -61,7 +62,7 @@ export default function AdminLayout() {
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
-        <h2>Skrining Admin</h2>
+        <div className="lp-brand"><BrandMark />Ruang <em>Admin</em></div>
         {MENU.map((item) => (
           <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? "active" : "")}>
             {item.label}
@@ -70,13 +71,17 @@ export default function AdminLayout() {
           </NavLink>
         ))}
         <div className="logout-btn">
-          <div style={{ fontSize: 13, opacity: .7, padding: "8px 12px" }}>
-            {username} ({role})
-          </div>
-          <button className="btn btn-secondary btn-block" onClick={handleLogout}>Logout</button>
+          <button className="btn btn-secondary btn-block" onClick={handleLogout}>Keluar</button>
         </div>
       </aside>
       <main className="admin-main">
+        <div className="admin-bar">
+          <span className="admin-avatar" aria-hidden="true">{(username ?? "?").slice(0, 1).toUpperCase()}</span>
+          <div>
+            <strong>{username}</strong>
+            <span>{role === "superadmin" ? "Super admin" : "Admin"}</span>
+          </div>
+        </div>
         <Outlet />
       </main>
     </div>

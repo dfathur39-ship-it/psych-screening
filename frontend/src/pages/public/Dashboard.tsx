@@ -4,6 +4,7 @@ import { useProfile, useScreening } from "../../context/ScreeningContext";
 import { requestRetake, startScreening } from "../../api/services";
 import { getErrorMessage } from "../../api/client";
 import { useToast } from "../../components/Common";
+import { WaveScene } from "../../components/Illustrations";
 
 function Tick() {
   return (
@@ -65,7 +66,7 @@ export default function Dashboard() {
     try {
       await requestRetake(profile.id, reason.trim() || undefined);
       setReason("");
-      showToast("Permintaan terkirim. Menunggu persetujuan admin.", "success");
+      showToast("Permintaan sudah terkirim. Tunggu persetujuan admin ya.", "success");
       void refreshProfile();
     } catch (err) {
       showToast(getErrorMessage(err), "error");
@@ -75,23 +76,28 @@ export default function Dashboard() {
   };
 
   const questionStepLabel = () => {
-    if (!ktpOk) return "Terbuka setelah KTP Anda dikonfirmasi di profil.";
-    if (resuming) return "Anda masih punya skrining yang belum selesai. Jawaban sebelumnya sudah tersimpan.";
+    if (!ktpOk) return "Terbuka setelah KTP‑mu dikonfirmasi di profil.";
+    if (resuming) return "Kamu masih punya skrining yang belum selesai. Jawabanmu sebelumnya sudah tersimpan.";
     if (!alreadyDone) return "Sekitar 10 menit. Tidak ada jawaban benar atau salah.";
-    if (retakeStatus === "approved") return "Admin sudah menyetujui permintaan Anda. Anda bisa mulai sekarang.";
-    return "Skrining Anda sudah selesai dan tidak bisa dikerjakan ulang tanpa persetujuan admin.";
+    if (retakeStatus === "approved") return "Admin sudah menyetujui permintaanmu. Kamu bisa mulai sekarang.";
+    return "Skriningmu sudah selesai dan tidak bisa diulang tanpa persetujuan admin.";
   };
 
   return (
     <main className="page-narrow">
-      <h1>Halo, {firstName}</h1>
-      <p className="page-lead">
-        {!ktpOk
-          ? "Sebelum mulai menjawab pertanyaan, konfirmasi KTP Anda dulu di halaman Profil."
-          : canStart
-            ? "Semua siap. Anda bisa mulai menjawab pertanyaan kapan saja."
-            : "Skrining Anda sudah selesai. Ajukan permintaan di bawah untuk bisa mengerjakannya lagi."}
-      </p>
+      <div className="page-head">
+        <div>
+          <h1>Halo, {firstName}</h1>
+          <p className="page-lead">
+            {!ktpOk
+              ? "Sebelum mulai menjawab, konfirmasi KTP‑mu dulu di halaman Profil."
+              : canStart
+                ? "Semua sudah siap. Mulai kapan pun kamu merasa nyaman."
+                : "Skriningmu sudah selesai. Ajukan permintaan di bawah kalau mau mengulang."}
+          </p>
+        </div>
+        <div className="spot" aria-hidden="true"><WaveScene /></div>
+      </div>
 
       <ol className="hm-steps">
         <li className="hm-step done">
@@ -107,8 +113,8 @@ export default function Dashboard() {
           <span className="hm-mark">{ktpOk ? <Tick /> : 2}</span>
           <div className="hm-body">
             <h2>Konfirmasi KTP</h2>
-            <p>{ktpOk ? "KTP sudah Anda periksa dan konfirmasi." : "Foto KTP, lalu periksa dan koreksi hasil bacaannya."}</p>
-            {!ktpOk && <Link className="btn btn-primary btn-sm hm-action" to="/profil">Konfirmasi KTP di profil</Link>}
+            <p>{ktpOk ? "KTP‑mu sudah diperiksa dan dikonfirmasi." : "Unggah foto KTP, lalu periksa dan koreksi hasil bacaannya."}</p>
+            {!ktpOk && <Link className="btn btn-primary btn-sm hm-action" to="/profil">Konfirmasi KTP</Link>}
           </div>
           {ktpOk && <Link className="link-btn" to="/profil">Lihat</Link>}
         </li>
@@ -120,7 +126,7 @@ export default function Dashboard() {
             <p>{questionStepLabel()}</p>
             {canStart && (
               <button className="btn btn-primary btn-sm hm-action" disabled={starting} onClick={handleStart}>
-                {starting ? "Menyiapkan..." : resuming ? "Lanjutkan skrining" : "Mulai skrining"}
+                {starting ? "Sebentar ya..." : resuming ? "Lanjutkan skrining" : "Mulai skrining"}
               </button>
             )}
           </div>
@@ -131,7 +137,7 @@ export default function Dashboard() {
         <div className="card hm-last">
           <div>
             <h3>Hasil skrining sebelumnya</h3>
-            <p>Anda pernah menyelesaikan skrining. Hasilnya masih bisa dibuka.</p>
+            <p>Kamu pernah menyelesaikan skrining. Hasilnya masih bisa dibuka.</p>
           </div>
           <button className="btn btn-secondary" onClick={handleViewResult}>Lihat hasil</button>
         </div>
@@ -139,22 +145,22 @@ export default function Dashboard() {
 
       {alreadyDone && (
         <section className="card retake-card">
-          <h3>Mengerjakan ulang skrining</h3>
+          <h3>Mengulang skrining</h3>
           {retakeStatus === "pending" && (
-            <p className="notice">Permintaan Anda sedang menunggu persetujuan admin.</p>
+            <p className="notice">Permintaanmu sedang menunggu persetujuan admin.</p>
           )}
           {retakeStatus === "approved" && (
-            <p className="notice notice-success">Permintaan Anda disetujui. Tekan "Mulai skrining" di atas.</p>
+            <p className="notice notice-success">Permintaanmu disetujui. Tekan "Mulai skrining" di atas.</p>
           )}
           {retakeStatus === "rejected" && (
             <p className="notice notice-danger">
-              Permintaan sebelumnya belum disetujui admin. Anda bisa mengajukan lagi di bawah ini.
+              Permintaan sebelumnya belum disetujui admin. Kamu bisa mengajukan lagi di bawah ini.
             </p>
           )}
           {retakeStatus !== "pending" && retakeStatus !== "approved" && (
             <>
               <p className="pf-text">
-                Skrining Anda sudah selesai. Untuk mengerjakan ulang, ajukan permintaan berikut dan tunggu admin menyetujuinya.
+                Skriningmu sudah selesai. Untuk mengulang, kirim permintaan berikut dan tunggu admin menyetujuinya.
               </p>
               <div className="form-group">
                 <label htmlFor="retake-reason">Alasan (opsional)</label>
@@ -163,7 +169,7 @@ export default function Dashboard() {
                   placeholder="Contoh: Ada gangguan saat pertama kali mengerjakan" />
               </div>
               <button className="btn btn-secondary" disabled={requesting} onClick={() => void handleRequestRetake()}>
-                {requesting ? "Mengirim..." : "Ajukan mengerjakan ulang"}
+                {requesting ? "Sebentar ya..." : "Ajukan mengulang skrining"}
               </button>
             </>
           )}

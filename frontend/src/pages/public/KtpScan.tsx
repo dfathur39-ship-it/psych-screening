@@ -42,7 +42,7 @@ export default function KtpScan() {
     setPreview(URL.createObjectURL(f));
   };
 
-  // Isi manual selalu tersedia: user tidak wajib memakai scan AI.
+  // Isi manual selalu tersedia: pengguna tidak wajib memakai pindai.
   const goManual = () => navigate("/profil/ktp/konfirmasi", { state: { manual: true } });
 
   const handleProcess = async () => {
@@ -52,10 +52,10 @@ export default function KtpScan() {
     try {
       // Hasil scan hanya draft: TIDAK disimpan. User memeriksa dulu di halaman berikutnya.
       const scan = await scanKtp(participantId, file);
-      showToast("Data KTP berhasil dibaca. Silakan periksa kembali.", "success");
+      showToast("Datanya sudah terbaca. Yuk periksa sekali lagi.", "success");
       navigate("/profil/ktp/konfirmasi", { state: { scan } });
     } catch (err) {
-      // AI gagal bukan jalan buntu: user bisa scan ulang atau isi manual.
+      // Pindai gagal bukan jalan buntu: user bisa scan ulang atau isi manual.
       setError(getErrorMessage(err));
     } finally {
       setLoading(false);
@@ -65,8 +65,8 @@ export default function KtpScan() {
   return (
     <FlowLayout embedded step={1}>
       <Link className="back-link" to="/profil">&larr; Kembali ke profil</Link>
-      <h1 className="flow-title">Scan KTP dengan AI</h1>
-      <p className="flow-sub">AI membantu mengisi data dari foto KTP. Hasilnya hanya draft: Anda memeriksa dan memperbaikinya di langkah berikutnya sebelum disimpan. Tidak mau scan? Anda bisa mengisi manual.</p>
+      <h1 className="flow-title">Pindai KTP‑mu</h1>
+      <p className="flow-sub">Kami bantu membaca datanya dari foto KTP. Hasilnya baru draft: kamu periksa dan perbaiki dulu di langkah berikutnya sebelum disimpan. Tidak mau dipindai? Isi manual juga boleh.</p>
 
       {preview ? (
         <div className={`ktp-preview ${loading ? "scanning" : ""}`}>
@@ -87,7 +87,7 @@ export default function KtpScan() {
             <rect x="3" y="5" width="18" height="14" rx="2.5" /><circle cx="8.5" cy="11" r="2" /><path d="M13.5 10h4M13.5 13.5h3M6 16c.6-1.3 1.6-2 2.500-2s1.900.7 2.500 2" />
           </svg>
           <span className="c1" /><span className="c2" />
-          <p><strong>Tarik foto KTP ke sini</strong> atau klik untuk memilih</p>
+          <p><strong>Taruh foto KTP di sini</strong> atau klik untuk memilih</p>
           <p className="form-hint">JPG, PNG, atau WEBP. Maksimal {MAX_SIZE_MB}MB.</p>
         </div>
       )}
@@ -106,19 +106,19 @@ export default function KtpScan() {
         </button>
       </div>
 
-      {loading && <div className="notice" role="status">Memproses KTP...</div>}
+      {loading && <div className="notice" role="status">Sedang membaca KTP‑mu, tunggu sebentar ya...</div>}
       {error && (
         <div className="notice notice-danger" role="alert">
           {error}
-          <div className="form-hint">Anda bisa scan ulang, mengganti foto, atau mengisi data secara manual.</div>
+          <div className="form-hint">Kamu bisa pindai ulang, ganti foto, atau isi data secara manual.</div>
         </div>
       )}
 
       <button className="btn btn-primary btn-block btn-lg" disabled={!file || loading} onClick={handleProcess}>
-        {loading ? "Memproses KTP..." : error ? "Scan Ulang" : "Scan dengan AI"}
+        {loading ? "Sedang membaca..." : error ? "Pindai Ulang" : "Pindai KTP"}
       </button>
       <button className="btn btn-secondary btn-block" style={{ marginTop: 10 }} disabled={loading} onClick={goManual}>
-        Isi Manual
+        Isi Manual Saja
       </button>
 
       <ul className="tips">

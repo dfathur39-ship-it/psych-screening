@@ -11,7 +11,7 @@ export default function Export() {
     setLoading(format);
     try {
       await downloadExport(format);
-      showToast("Export berhasil diunduh", "success");
+      showToast("Data berhasil diunduh", "success");
     } catch (err) {
       showToast(getErrorMessage(err), "error");
     } finally {
@@ -21,19 +21,19 @@ export default function Export() {
 
   return (
     <div>
-      <div className="admin-topbar"><h1>Export Data</h1></div>
+      <div className="admin-topbar"><h1>Ekspor Data</h1></div>
       <div className="card" style={{ maxWidth: 480 }}>
         <p>
-          Export data hasil skrining yang sudah selesai dalam format CSV atau Excel.
+          Unduh data hasil skrining yang sudah selesai dalam format CSV atau Excel.
           Kolom: Tanggal, Nama, Usia, Jabatan, Score, Kategori.
         </p>
         <p className="form-hint">NIK tidak disertakan dalam export demi privasi data.</p>
         <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
           <button className="btn btn-primary" onClick={() => handleExport("csv")} disabled={loading !== null}>
-            {loading === "csv" ? "Mengunduh..." : "Export CSV"}
+            {loading === "csv" ? "Sedang mengunduh..." : "Unduh CSV"}
           </button>
           <button className="btn btn-primary" onClick={() => handleExport("excel")} disabled={loading !== null}>
-            {loading === "excel" ? "Mengunduh..." : "Export Excel"}
+            {loading === "excel" ? "Sedang mengunduh..." : "Unduh Excel"}
           </button>
         </div>
       </div>

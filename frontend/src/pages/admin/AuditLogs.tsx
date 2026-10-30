@@ -26,8 +26,8 @@ export default function AuditLogs() {
 
   return (
     <div>
-      <div className="admin-topbar"><h1>Audit Log</h1></div>
-      {!rows ? <Spinner /> : rows.length === 0 ? <EmptyState message="Belum ada aktivitas" /> : (
+      <div className="admin-topbar"><h1>Riwayat Aktivitas</h1></div>
+      {!rows ? <Spinner /> : rows.length === 0 ? <EmptyState message="Belum ada aktivitas yang tercatat" /> : (
         <div className="table-wrap">
           <table className="data-table">
             <thead><tr><th>Waktu</th><th>Admin</th><th>Aksi</th><th>Target</th><th>Deskripsi</th><th>IP</th></tr></thead>

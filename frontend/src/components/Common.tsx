@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
+import { RestScene } from "./Illustrations";
 
 type ToastType = "success" | "error" | "info";
 interface Toast { id: number; message: string; type: ToastType; }
@@ -37,7 +38,7 @@ export function useToast() {
   return ctx;
 }
 
-export function Spinner({ label = "Memuat..." }: { label?: string }) {
+export function Spinner({ label = "Sebentar ya, lagi dimuat..." }: { label?: string }) {
   return (
     <div className="spinner-wrap">
       <div className="spinner" />
@@ -47,7 +48,12 @@ export function Spinner({ label = "Memuat..." }: { label?: string }) {
 }
 
 export function EmptyState({ message }: { message: string }) {
-  return <div className="empty-state">{message}</div>;
+  return (
+    <div className="empty-state">
+      <div className="empty-art" aria-hidden="true"><RestScene /></div>
+      <p>{message}</p>
+    </div>
+  );
 }
 
 export function ConfirmDialog({
@@ -61,7 +67,7 @@ export function ConfirmDialog({
         <p>{message}</p>
         <div className="modal-actions">
           <button className="btn btn-secondary" onClick={onCancel}>Batal</button>
-          <button className="btn btn-danger" onClick={onConfirm}>Konfirmasi</button>
+          <button className="btn btn-danger" onClick={onConfirm}>Ya, lanjutkan</button>
         </div>
       </div>
     </div>

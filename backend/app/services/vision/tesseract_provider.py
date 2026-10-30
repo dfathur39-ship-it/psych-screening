@@ -83,7 +83,7 @@ class TesseractProvider(VisionProvider):
         except ImportError as e:
             raise VisionNotConfigured("pytesseract belum terpasang di server.") from e
         if not self.is_configured():
-            raise VisionNotConfigured("Tesseract OCR belum terpasang / TESSERACT_CMD salah.")
+            raise VisionNotConfigured("Pembaca KTP cadangan belum terpasang.")
         if settings.TESSERACT_CMD:
             pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
@@ -105,10 +105,10 @@ class TesseractProvider(VisionProvider):
                 big = gray.resize((max(1, int(gray.width * scale)), max(1, int(gray.height * scale))), Image.LANCZOS)
                 texts = [ocr(big, 6), ocr(big, 4)]
         except pytesseract.TesseractNotFoundError as e:
-            raise VisionNotConfigured("Tesseract OCR tidak ditemukan.") from e
+            raise VisionNotConfigured("Pembaca KTP cadangan tidak ditemukan.") from e
         except Exception as e:
             logger.warning("Tesseract gagal: %s", type(e).__name__)
-            raise VisionBadResponse("OCR Tesseract gagal membaca gambar.") from None
+            raise VisionBadResponse("Foto KTP belum berhasil dibaca.") from None
 
         # Pakai hasil dengan field terbanyak.
         def filled(t: str) -> int:
@@ -137,6 +137,6 @@ class TesseractProvider(VisionProvider):
         }
         return ExtractionResult(
             document_type="KTP", confidence=TESSERACT_CONFIDENCE, fields=fields,
-            warnings=["Dibaca dengan OCR Tesseract (akurasi terbatas). Periksa semua kolom dengan teliti."],
+            warnings=["Dibaca dengan pembaca sederhana (akurasi terbatas). Periksa semua kolom dengan teliti."],
             provider=self.name, model=self.model_name(),
         )

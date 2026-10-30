@@ -101,7 +101,7 @@ const FLAG_TEXT: Record<Flag["kind"], string> = {
   ok: "✓ Data berhasil dibaca",
   review: "⚠ Periksa kembali",
   unreadable: "✕ Tidak terbaca",
-  edited: "✓ Sudah Anda periksa",
+  edited: "✓ Sudah kamu periksa",
 };
 
 function initialValues(ocr?: KtpOcrResult): FormValues {
@@ -214,12 +214,12 @@ export default function KtpConfirm() {
 
   return (
     <FlowLayout embedded step={2} wide>
-      <Link className="back-link" to="/profil/ktp">&larr; {manual ? "Kembali ke scan KTP" : "Scan ulang KTP"}</Link>
+      <Link className="back-link" to="/profil/ktp">&larr; {manual ? "Kembali ke pindai KTP" : "Pindai ulang KTP"}</Link>
       <h1 className="flow-title">Periksa data KTP</h1>
       <p className="flow-sub">
         {manual
-          ? "Isi semua kolom sesuai KTP Anda."
-          : "Hasil pembacaan otomatis bisa keliru. Cocokkan dengan KTP Anda dan lengkapi semua kolom sebelum lanjut."}
+          ? "Isi semua kolom sesuai KTP‑mu."
+          : "Pembacaan otomatis kadang keliru. Cocokkan dengan KTP‑mu dan lengkapi semua kolom sebelum lanjut."}
       </p>
 
       {ocr && !ocr.success && (
@@ -228,9 +228,9 @@ export default function KtpConfirm() {
       {scan && (
         <div className="notice" role="status">
           {scan.provider === "tesseract"
-            ? (scan.fallback_used ? "AI tidak tersedia, data dibaca dengan OCR Tesseract (akurasi terbatas). " : "Data dibaca dengan OCR Tesseract (akurasi terbatas). ")
-            : "Data KTP dibaca oleh AI. "}Tanda <strong>✓</strong> = berhasil dibaca, <strong>⚠</strong> = periksa kembali,{" "}
-          <strong>✕</strong> = tidak terbaca (isi manual). Data baru disimpan setelah Anda menekan Konfirmasi.
+            ? (scan.fallback_used ? "Pembaca utama sedang tidak tersedia, jadi dipakai pembaca cadangan yang kurang akurat. " : "Data dibaca dengan pembaca sederhana yang kurang akurat. ")
+            : "Data KTP sudah dibaca otomatis. "}Tanda <strong>✓</strong> = berhasil dibaca, <strong>⚠</strong> = periksa kembali,{" "}
+          <strong>✕</strong> = tidak terbaca (isi manual). Data baru disimpan setelah kamu menekan Konfirmasi.
           {scan.warnings.length > 0 && (
             <ul className="scan-warnings">{scan.warnings.map((w) => <li key={w}>{w}</li>)}</ul>
           )}
@@ -238,9 +238,7 @@ export default function KtpConfirm() {
       )}
       {!scan && ocr?.ocr_provider && (
         <div className="notice" style={{ marginTop: 8 }}>
-          Dibaca dengan {ocr.ocr_provider === "vlm" ? "AI (VLM)" : "Tesseract"}
-          {ocr.fallback_used ? " — VLM tidak tersedia, otomatis pakai Tesseract." : ""} Tetap
-          periksa semua kolom sebelum konfirmasi.
+          Data dibaca otomatis{ocr.fallback_used ? " dengan pembaca cadangan" : ""}. Tetap periksa semua kolom sebelum konfirmasi.
         </div>
       )}
 
@@ -261,12 +259,12 @@ export default function KtpConfirm() {
         ))}
 
         <button className="btn btn-primary btn-block btn-lg" disabled={submitting} type="submit">
-          {submitting ? "Menyimpan..." : "Konfirmasi KTP"}
+          {submitting ? "Sebentar ya..." : "Konfirmasi KTP"}
         </button>
         {scan && (
           <button className="btn btn-secondary btn-block" style={{ marginTop: 10 }} type="button"
             disabled={submitting} onClick={() => navigate("/profil/ktp")}>
-            Scan Ulang
+            Pindai Ulang
           </button>
         )}
       </form>

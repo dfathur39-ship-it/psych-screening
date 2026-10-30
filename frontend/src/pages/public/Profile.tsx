@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useProfile, useScreening } from "../../context/ScreeningContext";
 import { ConfirmDialog } from "../../components/Common";
+import { ReadScene } from "../../components/Illustrations";
 
 export default function Profile() {
   const profile = useProfile();
@@ -21,8 +22,13 @@ export default function Profile() {
 
   return (
     <main className="page-narrow">
-      <h1>Profil</h1>
-      <p className="page-lead">Data diri Anda dan konfirmasi KTP. KTP harus dikonfirmasi sebelum bisa mulai menjawab pertanyaan.</p>
+      <div className="page-head">
+        <div>
+          <h1>Profil</h1>
+          <p className="page-lead">Data dirimu dan konfirmasi KTP. KTP perlu dikonfirmasi dulu sebelum kamu mulai menjawab pertanyaan.</p>
+        </div>
+        <div className="spot" aria-hidden="true"><ReadScene /></div>
+      </div>
 
       <section className="card pf-card">
         <h2>Data diri</h2>
@@ -42,8 +48,8 @@ export default function Profile() {
         </div>
         <p className="pf-text">
           {ktpOk
-            ? "Terima kasih, KTP Anda sudah dikonfirmasi. Foto ulang hanya perlu jika ada data yang salah, dan datanya harus Anda konfirmasi lagi."
-            : "Foto KTP Anda, kami bantu membaca datanya, lalu Anda memeriksa dan mengoreksinya."}
+            ? "Terima kasih, KTP‑mu sudah dikonfirmasi. Foto ulang hanya perlu kalau ada data yang salah, dan datanya perlu kamu konfirmasi lagi."
+            : "Foto KTP‑mu, kami bantu membaca datanya, lalu kamu periksa dan koreksi."}
         </p>
         {ktpOk && profile.nik_masked && (
           <dl className="pf-list">
@@ -52,20 +58,20 @@ export default function Profile() {
         )}
         <div className="pf-actions">
           <Link className={`btn ${ktpOk ? "btn-secondary" : "btn-primary"}`} to="/profil/ktp">
-            {ktpOk ? "Foto ulang KTP" : "Scan KTP"}
+            {ktpOk ? "Foto ulang KTP" : "Pindai KTP"}
           </Link>
           {ktpOk && <Link className="btn btn-primary" to="/beranda">Ke beranda</Link>}
         </div>
       </section>
 
       <p className="pf-switch">
-        Bukan Anda? <button className="link-btn" onClick={() => setConfirmOut(true)}>Gunakan data diri lain</button>
+        Bukan kamu? <button className="link-btn" onClick={() => setConfirmOut(true)}>Gunakan data diri lain</button>
       </p>
 
       <ConfirmDialog
         open={confirmOut}
         title="Gunakan data diri lain"
-        message="Anda akan keluar dari data diri ini di perangkat ini dan perlu mengisi data diri lagi. Percakapan dan skrining yang sedang berjalan tidak bisa dibuka lagi dari sini. Lanjutkan?"
+        message="Kamu akan keluar dari data diri ini di perangkat ini dan perlu mengisi data diri lagi. Percakapan dan skrining yang sedang berjalan tidak bisa dibuka lagi dari sini. Lanjutkan?"
         onConfirm={() => { setConfirmOut(false); reset(); /* MemberLayout then sends them to fill in data diri */ }}
         onCancel={() => setConfirmOut(false)}
       />

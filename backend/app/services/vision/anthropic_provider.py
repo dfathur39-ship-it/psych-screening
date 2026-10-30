@@ -89,7 +89,7 @@ class AnthropicVisionProvider(VisionProvider):
         if isinstance(e, sdk.RateLimitError):
             return VisionRateLimited()
         if isinstance(e, (sdk.AuthenticationError, sdk.PermissionDeniedError)):
-            return VisionNotConfigured("Kunci API layanan AI ditolak. Hubungi admin; sementara isi data secara manual.")
+            return VisionNotConfigured("Layanan pembaca KTP sedang tidak bisa dipakai. Hubungi admin, atau isi datanya secara manual dulu.")
         if isinstance(e, sdk.NotFoundError):
             return VisionModelUnavailable()
         if isinstance(e, sdk.APIConnectionError):

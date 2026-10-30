@@ -62,7 +62,7 @@ def request_retake(participant_id: str, payload: RetakeRequestCreate, db: Sessio
         message = (
             "Permintaan sebelumnya masih menunggu persetujuan admin"
             if latest.status == "pending"
-            else "Permintaan Anda sudah disetujui, silakan mulai skrining dari beranda"
+            else "Permintaanmu sudah disetujui, silakan mulai skrining dari beranda"
         )
         raise conflict(message, "RETAKE_REQUEST_EXISTS")
 

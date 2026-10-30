@@ -64,7 +64,7 @@ class OpenAIVisionProvider(VisionProvider):
             if status == 429:
                 raise VisionRateLimited() from None
             if status in (401, 403):
-                raise VisionNotConfigured("Kunci API layanan AI ditolak. Hubungi admin; sementara isi data secara manual.") from None
+                raise VisionNotConfigured("Layanan pembaca KTP sedang tidak bisa dipakai. Hubungi admin, atau isi datanya secara manual dulu.") from None
             if status == 404:
                 raise VisionModelUnavailable() from None
             if status >= 500:

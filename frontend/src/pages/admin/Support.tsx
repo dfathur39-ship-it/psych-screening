@@ -106,7 +106,7 @@ export default function Support() {
                   <span className="inbox-time">{formatChatTime(t.last_message_at)}</span>
                 </div>
                 <div className="inbox-row">
-                  <span className="inbox-preview">{t.last_sender === "admin" ? "Anda: " : ""}{t.last_message_preview}</span>
+                  <span className="inbox-preview">{t.last_sender === "admin" ? "Saya: " : ""}{t.last_message_preview}</span>
                   {t.unread_count > 0 && <span className="nav-badge">{t.unread_count}</span>}
                 </div>
               </button>
@@ -118,7 +118,7 @@ export default function Support() {
           {!selectedId ? (
             <div className="inbox-placeholder">Pilih percakapan di sebelah kiri untuk membaca dan membalas.</div>
           ) : !detail ? (
-            <Spinner label="Memuat percakapan..." />
+            <Spinner label="Membuka percakapan..." />
           ) : (
             <>
               <div className="chat-head">

@@ -58,16 +58,16 @@ def seed():
         if db.query(ResultCategory).count() == 0:
             categories = [
                 ("Normal", 0, 10,
-                 "Kondisi psikologis Anda saat ini berada dalam rentang normal.",
+                 "Kondisi psikologismu saat ini berada dalam rentang normal.",
                  "Tetap jaga keseimbangan kerja dan istirahat."),
                 ("Stres Ringan", 11, 20,
-                 "Anda menunjukkan indikasi stres ringan.",
-                 "Perhatikan pola istirahat dan beban kerja Anda."),
+                 "Kamu menunjukkan indikasi stres ringan.",
+                 "Perhatikan pola istirahat dan beban kerjamu."),
                 ("Stres Sedang", 21, 30,
-                 "Anda menunjukkan indikasi stres sedang.",
+                 "Kamu menunjukkan indikasi stres sedang.",
                  "Disarankan berkonsultasi dengan atasan atau tim HR terkait beban kerja."),
                 ("Stres Tinggi", 31, 999,
-                 "Anda menunjukkan indikasi stres tinggi.",
+                 "Kamu menunjukkan indikasi stres tinggi.",
                  "Disarankan segera berkonsultasi dengan psikolog/profesional kesehatan mental."),
             ]
             for name, mn, mx, msg, rec in categories:

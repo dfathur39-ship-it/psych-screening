@@ -42,7 +42,7 @@ def start_screening(payload: ScreeningStart, db: Session = Depends(get_db)):
         approved = get_unused_approved_retake(db, participant.id)
         if not approved:
             raise forbidden(
-                "Skrining Anda sudah selesai. Ajukan permintaan mengerjakan ulang di beranda dan tunggu "
+                "Skriningmu sudah selesai. Ajukan permintaan mengulang di beranda dan tunggu "
                 "persetujuan admin.",
                 "RETAKE_NOT_APPROVED",
             )
@@ -98,7 +98,7 @@ def submit_answer(session_id: str, payload: ScreeningAnswerSubmit, db: Session =
 
     allowed_questions = get_questions_for_position(db, session.position)
     if payload.question_id not in {q.id for q in allowed_questions}:
-        raise bad_request("Pertanyaan ini bukan bagian dari sesi skrining Anda", "QUESTION_NOT_IN_SESSION")
+        raise bad_request("Pertanyaan ini bukan bagian dari sesi skriningmu", "QUESTION_NOT_IN_SESSION")
 
     option = db.query(AnswerOption).filter(
         AnswerOption.id == payload.answer_option_id,
@@ -167,7 +167,7 @@ def _build_result(db: Session, session: ScreeningSession) -> ScreeningResultOut:
         total_score=session.total_score or 0,
         category_name=category.name if category else "Tidak terklasifikasi",
         message=category.message if category else (
-            "Skor Anda saat ini belum memiliki kategori yang sesuai di sistem. "
+            "Skormu saat ini belum memiliki kategori yang sesuai di sistem. "
             "Silakan hubungi admin/psikolog untuk peninjauan lebih lanjut."
         ),
         recommendation=category.recommendation if category else "Hubungi tim HR/psikolog untuk tindak lanjut.",

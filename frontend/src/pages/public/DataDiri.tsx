@@ -6,6 +6,7 @@ import { createParticipant } from "../../api/services";
 import { getErrorMessage } from "../../api/client";
 import { useToast } from "../../components/Common";
 import FlowLayout from "../../components/FlowLayout";
+import { WaveScene } from "../../components/Illustrations";
 
 interface FormValues {
   nama: string;
@@ -49,11 +50,16 @@ export default function DataDiri() {
 
   return (
     <FlowLayout>
-      <h1 className="flow-title">Halo, kenalan dulu</h1>
-      <p className="flow-sub">Isi data diri Anda. Data ini juga dipakai untuk masuk ke halaman lain, termasuk Hubungi kami.</p>
+      <div className="flow-hello">
+        <div className="spot"><WaveScene /></div>
+        <div>
+          <h1 className="flow-title">Halo, kenalan dulu yuk</h1>
+          <p className="flow-sub">Isi data dirimu dulu. Data ini juga dipakai untuk masuk ke halaman lain, termasuk Hubungi kami.</p>
+        </div>
+      </div>
 
       {from && (
-        <div className="notice">Isi data diri dulu untuk melanjutkan. Tidak sampai satu menit.</div>
+        <div className="notice">Isi data dirimu dulu supaya bisa lanjut. Tidak sampai satu menit.</div>
       )}
 
       <form className="stagger" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -103,12 +109,12 @@ export default function DataDiri() {
           <label htmlFor="jabatan">Jabatan</label>
           <input id="jabatan" className="form-control" placeholder="Contoh: Senior Software Engineer"
             {...register("jabatan", { required: "Jabatan wajib diisi" })} />
-          <div className="form-hint">Ketik jabatan Anda sendiri, tidak harus sesuai daftar baku.</div>
+          <div className="form-hint">Ketik jabatanmu sendiri, tidak harus sesuai daftar baku.</div>
           {errors.jabatan && <div className="form-error">{errors.jabatan.message}</div>}
         </div>
 
         <button className="btn btn-primary btn-block btn-lg" disabled={submitting} type="submit">
-          {submitting ? "Menyimpan..." : "Simpan dan lanjut"}
+          {submitting ? "Sebentar, lagi disimpan..." : "Simpan dan lanjut"}
         </button>
       </form>
     </FlowLayout>
