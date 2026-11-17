@@ -501,13 +501,17 @@ details.faq[open] summary::after { transform: translateY(-50%) rotate(45deg); }
 @media (max-width: 560px) { .admin-hello .spot { display: none; } }
 .nav-badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 7px; background: var(--orange); color: #2b1608; font-size: 12px; font-weight: 800; flex-shrink: 0; }
 @media (max-width: 860px) {
-  .admin-shell { flex-direction: column; }
-  .admin-sidebar { width: 100%; height: auto; position: static; flex-direction: row; align-items: center; overflow-x: auto; border-right: none; border-bottom: 1.5px solid #cfdcc4; padding: 10px 12px; }
-  .admin-sidebar .lp-brand, .admin-sidebar h2, .admin-who { display: none; }
-  .admin-sidebar a { white-space: nowrap; flex-shrink: 0; padding: 8px 12px; }
-  .admin-sidebar .logout-btn { margin-top: 0; margin-left: 0; }
-  .admin-main { padding: 20px 16px 56px; }
+  .admin-shell { display: block; }
+  .admin-sidebar { position: fixed; z-index: 90; top: 0; left: 0; bottom: 0; width: min(280px, 82vw); height: 100vh; transform: translateX(-102%); transition: transform .25s ease; box-shadow: none; border-right: 1.5px solid #cfdcc4; }
+  .admin-sidebar.open { transform: none; box-shadow: 12px 0 40px -12px rgba(30, 45, 36, .45); }
+  .admin-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(40, 52, 44, .45); animation: fade .2s ease both; }
+  .admin-main { padding: 16px 16px 56px; }
+  .admin-bar .menu-btn { display: grid; }
+  .admin-bar { justify-content: space-between; margin-top: 0; }
 }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.menu-btn { display: none; place-items: center; width: 42px; height: 42px; border-radius: 12px; border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text-h); cursor: pointer; }
+.menu-btn:hover { background: var(--accent-bg); }
 
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
 .stat-card .value { font-family: var(--display); font-size: 34px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-h); line-height: 1.1; }
@@ -629,3 +633,4 @@ table.data-table tbody tr:hover td { background: #fbf7ec; }
 .result-card .flow-title { font-size: clamp(22px, 3vw, 28px); max-width: 20em; margin-left: auto; margin-right: auto; }
 .q-head .spot { width: 92px; }
 @media (max-width: 520px) { .help-fab { padding: 9px 14px; font-size: 13.5px; right: 12px; bottom: 12px; } }
+@media (max-width: 860px) { .admin-bar { justify-content: space-between; margin-top: 0; } }

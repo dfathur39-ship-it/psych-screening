@@ -11,7 +11,8 @@ export default function AdminShortcut() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
+      // Isi otomatis (autofill) browser bisa mengirim event keyboard tanpa `key`
+      const key = (e.key ?? "").toLowerCase();
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && key === "a") {
         e.preventDefault();
         navigate("/admin/login");

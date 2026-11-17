@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { adminLogout, getSupportUnread, getRetakePendingCount } from "../api/services";
@@ -30,6 +30,14 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const [unread, setUnread] = useState(0);
   const [pendingRetake, setPendingRetake] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   const refreshUnread = useCallback(async () => {
     try {
@@ -61,10 +69,10 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar${menuOpen ? " open" : ""}`} id="admin-menu">
         <div className="lp-brand"><BrandMark />Ruang <em>Admin</em></div>
         {MENU.map((item) => (
-          <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? "active" : "")}>
+          <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? "active" : "")}>
             {item.label}
             {item.badge === "support" && unread > 0 && <span className="nav-badge">{unread}</span>}
             {item.badge === "retake" && pendingRetake > 0 && <span className="nav-badge">{pendingRetake}</span>}
@@ -74,8 +82,19 @@ export default function AdminLayout() {
           <button className="btn btn-secondary btn-block" onClick={handleLogout}>Keluar</button>
         </div>
       </aside>
+      {menuOpen && <div className="admin-backdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
       <main className="admin-main">
         <div className="admin-bar">
+          <button
+            type="button"
+            className="menu-btn"
+            aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
+            aria-expanded={menuOpen}
+            aria-controls="admin-menu"
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+          </button>
           <span className="admin-avatar" aria-hidden="true">{(username ?? "?").slice(0, 1).toUpperCase()}</span>
           <div>
             <strong>{username}</strong>
