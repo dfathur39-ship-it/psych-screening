@@ -5,6 +5,7 @@ import { scanKtp } from "../../api/services";
 import { getErrorMessage } from "../../api/client";
 import { useToast } from "../../components/Common";
 import FlowLayout from "../../components/FlowLayout";
+import CameraCapture from "../../components/CameraCapture";
 
 const MAX_SIZE_MB = 4; // batas body fungsi Vercel 4,5 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
@@ -19,6 +20,7 @@ export default function KtpScan() {
   const [loading, setLoading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -68,7 +70,13 @@ export default function KtpScan() {
       <h1 className="flow-title">Pindai KTP‑mu</h1>
       <p className="flow-sub">Kami bantu membaca datanya dari foto KTP. Hasilnya baru draft: kamu periksa dan perbaiki dulu di langkah berikutnya sebelum disimpan. Tidak mau dipindai? Isi manual juga boleh.</p>
 
-      {preview ? (
+      {cameraOpen ? (
+        <CameraCapture
+          onCapture={(f) => { setCameraOpen(false); handleFile(f); }}
+          onClose={() => setCameraOpen(false)}
+          onFallback={() => { setCameraOpen(false); cameraInputRef.current?.click(); }}
+        />
+      ) : preview ? (
         <div className={`ktp-preview ${loading ? "scanning" : ""}`}>
           <img src={preview} alt="Pratinjau KTP" />
           {loading && <span className="scan-line" />}
@@ -97,9 +105,9 @@ export default function KtpScan() {
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" hidden
         onChange={(e) => { handleFile(e.target.files?.[0]); e.target.value = ""; }} />
 
-      <div className="btn-row">
-        <button className="btn btn-secondary" disabled={loading} onClick={() => cameraInputRef.current?.click()}>
-          Gunakan kamera
+      <div className="btn-row" hidden={cameraOpen}>
+        <button className="btn btn-secondary" disabled={loading} onClick={() => { setError(null); setCameraOpen(true); }}>
+          {preview ? "Foto ulang dengan kamera" : "Gunakan kamera"}
         </button>
         <button className="btn btn-secondary" disabled={loading} onClick={() => fileInputRef.current?.click()}>
           {preview ? "Ganti foto" : "Pilih dari galeri"}
@@ -114,7 +122,7 @@ export default function KtpScan() {
         </div>
       )}
 
-      <button className="btn btn-primary btn-block btn-lg" disabled={!file || loading} onClick={handleProcess}>
+      <button className="btn btn-primary btn-block btn-lg" hidden={cameraOpen} disabled={!file || loading} onClick={handleProcess}>
         {loading ? "Sedang membaca..." : error ? "Pindai Ulang" : "Pindai KTP"}
       </button>
       <button className="btn btn-secondary btn-block" style={{ marginTop: 10 }} disabled={loading} onClick={goManual}>
