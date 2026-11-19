@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -7,6 +8,7 @@ from app.models.models import Participant, RetakeRequest
 from app.schemas.schemas import (
     ParticipantCreate, ParticipantOut, ParticipantProfileOut, RetakeRequestCreate, RetakeRequestOut,
 )
+from app.services.identity_service import clean_spaces, find_by_name, match_existing_account
 from app.services.participant_service import (
     get_latest_retake_request, has_completed_session, is_valid_uuid, to_participant_out, to_profile_out,
 )
@@ -15,16 +17,37 @@ router = APIRouter(prefix="/api/participants", tags=["participants"])
 
 
 @router.post("", response_model=ParticipantOut, status_code=201)
-def create_participant(payload: ParticipantCreate, db: Session = Depends(get_db)):
+def create_participant(payload: ParticipantCreate, response: Response, db: Session = Depends(get_db)):
+    """Daftar atau masuk. Data diri yang persis sama dengan akun yang sudah ada masuk ke akun itu (200).
+    Nama yang sama dengan data yang berbeda ditolak (409), jadi satu orang tidak bisa punya dua akun."""
+    nama = clean_spaces(payload.nama)
+    jabatan = clean_spaces(payload.jabatan)
+    existing = find_by_name(db, nama)
+    if existing:
+        if not match_existing_account(existing, email=payload.email, no_hp=payload.no_hp,
+                                      usia=payload.usia, jabatan=jabatan):
+            raise conflict(
+                "Nama ini sudah terdaftar dengan data yang berbeda. Isi data yang sama persis seperti saat "
+                "pertama mendaftar (email, nomor HP, usia, dan jabatan), atau hubungi admin.",
+                "NAMA_SUDAH_TERDAFTAR",
+            )
+        response.status_code = 200
+        return to_participant_out(existing)
+
     participant = Participant(
-        nama=payload.nama.strip(),
+        nama=nama,
         usia=payload.usia,
-        jabatan=payload.jabatan.strip(),
+        jabatan=jabatan,
         no_hp=payload.no_hp.strip(),
         email=payload.email,
     )
     db.add(participant)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Dua permintaan bersamaan dengan nama yang sama: yang kedua kalah.
+        db.rollback()
+        raise conflict("Nama ini sudah terdaftar. Coba masuk lagi dengan data yang sama.", "NAMA_SUDAH_TERDAFTAR") from None
     db.refresh(participant)
     return to_participant_out(participant)
 

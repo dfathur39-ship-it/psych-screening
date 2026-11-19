@@ -6,7 +6,7 @@ MESSAGE = "Halo, saya butuh bantuan"
 def _participant(client, nama="Budi"):
     r = client.post("/api/participants", json={
         "nama": nama, "usia": 30, "jabatan": "Staff", "no_hp": "08123456789", "email": "budi@example.com"})
-    assert r.status_code == 201, r.text
+    assert r.status_code in (200, 201), r.text  # data yang sama masuk ke akun yang sama (200)
     return r.json()["id"]
 
 

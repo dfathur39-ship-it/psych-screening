@@ -232,13 +232,13 @@ export function exportUrl(format: "csv" | "excel") {
   return `${base}/api/admin/export/${format}`;
 }
 
-export async function downloadExport(format: "csv" | "excel") {
+export async function downloadExport(format: "csv" | "excel" | "pdf") {
   const { data } = await api.get(`/api/admin/export/${format}`, { responseType: "blob" });
   const blob = new Blob([data]);
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = format === "csv" ? "skrining_export.csv" : "skrining_export.xlsx";
+  a.download = `skrining_export.${format === "excel" ? "xlsx" : format}`;
   document.body.appendChild(a);
   a.click();
   a.remove();

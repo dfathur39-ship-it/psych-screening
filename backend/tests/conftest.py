@@ -111,6 +111,15 @@ def seeded_categories(db):
     return cats
 
 
+def dob(age: int = 30) -> str:
+    """Tanggal lahir (dd-mm-yyyy) yang menghasilkan usia `age` hari ini."""
+    from datetime import timedelta
+    from app.services.identity_service import today_wib
+    t = today_wib()
+    born = t.replace(year=t.year - age, day=min(t.day, 28)) - timedelta(days=40)
+    return born.strftime("%d-%m-%Y")
+
+
 def make_participant(client, jabatan="Staff", ktp_confirmed=True, **over):
     """Create a participant through the API; optionally mark the KTP as confirmed
     (screening cannot be started before that)."""

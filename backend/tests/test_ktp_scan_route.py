@@ -10,7 +10,7 @@ from app.services.scan_quota import quota
 from app.services.vision.base import (
     VisionBadResponse, VisionNotConfigured, VisionProvider, VisionRateLimited, VisionTimeout, VisionUnavailable,
 )
-from tests.conftest import make_participant
+from tests.conftest import dob, make_participant
 from tests.ktp_fixtures import VALID_NIK, make_image_bytes, vlm_json
 
 
@@ -224,7 +224,7 @@ def test_error_response_never_echoes_ktp_content(client, pid, monkeypatch):
 
 
 # ---------- alur lengkap: scan -> user periksa -> konfirmasi (+ fallback manual) ----------
-CONFIRM = dict(nik=VALID_NIK, nama="BUDI SANTOSO", tempat_lahir="BOGOR", tanggal_lahir="01-02-1995",
+CONFIRM = dict(nik=VALID_NIK, nama="Flow Tester", tempat_lahir="BOGOR", tanggal_lahir=dob(30),
                jenis_kelamin="LAKI-LAKI", alamat="JL MERDEKA NO 1", rt_rw="001/002", kelurahan="SUKAJADI",
                kecamatan="BOGOR BARAT", agama="ISLAM", status_perkawinan="KAWIN",
                pekerjaan_ktp="KARYAWAN SWASTA", kewarganegaraan="WNI")
@@ -311,7 +311,7 @@ def test_auto_falls_back_to_tesseract_when_vlm_fails(client, pid, monkeypatch, v
     r = _scan(client, pid)
     assert r.status_code == 200, r.text
     assert r.json()["provider"] == "tesseract" and r.json()["fallback_used"] is True
-    assert "Tesseract" in r.json()["message"]
+    assert "cadangan" in r.json()["message"]
 
 
 def test_auto_uses_vlm_when_it_works(client, pid, monkeypatch):

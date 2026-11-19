@@ -13,6 +13,20 @@ const STATUS_LABEL: Record<string, string> = {
   in_progress: "Sedang Berjalan", completed: "Selesai", abandoned: "Ditinggalkan",
 };
 
+const fmtWib = (iso: string | null) =>
+  iso
+    ? new Date(iso).toLocaleString("id-ID", {
+        timeZone: "Asia/Jakarta", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+      }) + " WIB"
+    : "-";
+
+function duration(start: string | null, end: string | null) {
+  if (!start || !end) return "-";
+  const secs = Math.max(0, Math.round((new Date(end).getTime() - new Date(start).getTime()) / 1000));
+  const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60), sec = secs % 60;
+  return h ? `${h} jam ${m} mnt` : `${m} mnt ${sec} dtk`;
+}
+
 export default function Screenings() {
   const [rows, setRows] = useState<ScreeningRow[] | null>(null);
   const [total, setTotal] = useState(0);
@@ -53,7 +67,7 @@ export default function Screenings() {
         <div className="table-wrap">
           <table className="data-table">
             <thead>
-              <tr><th>Nama</th><th>Jabatan</th><th>Skor</th><th>Kategori</th><th>Status</th><th>Selesai</th></tr>
+              <tr><th>Nama</th><th>Jabatan</th><th>Skor</th><th>Kategori</th><th>Status</th><th>Mulai</th><th>Selesai</th><th>Durasi</th></tr>
             </thead>
             <tbody>
               {rows.map((r) => (
@@ -63,7 +77,9 @@ export default function Screenings() {
                   <td>{r.total_score ?? "-"}</td>
                   <td>{r.category ?? "-"}</td>
                   <td><span className={`badge ${r.status === "completed" ? "badge-success" : "badge-warning"}`}>{STATUS_LABEL[r.status] ?? r.status}</span></td>
-                  <td>{r.completed_at ? new Date(r.completed_at).toLocaleString("id-ID") : "-"}</td>
+                  <td>{fmtWib(r.started_at)}</td>
+                  <td>{fmtWib(r.completed_at)}</td>
+                  <td>{duration(r.started_at, r.completed_at)}</td>
                 </tr>
               ))}
             </tbody>

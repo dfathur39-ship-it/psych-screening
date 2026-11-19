@@ -104,7 +104,12 @@ class Participant(Base):
                                  cascade="all, delete-orphan")
     screening_sessions = relationship("ScreeningSession", back_populates="participant")
 
-    __table_args__ = (Index("ix_participants_nik", "nik"),)
+    __table_args__ = (
+        Index("ix_participants_nik", "nik"),
+        # Cadangan di level database: satu nama satu akun, satu NIK satu akun.
+        Index("uq_participants_nama", func.lower(func.btrim(nama)), unique=True),
+        Index("uq_participants_nik", "nik", unique=True, postgresql_where=nik.isnot(None)),
+    )
 
 
 class KtpDocument(Base):

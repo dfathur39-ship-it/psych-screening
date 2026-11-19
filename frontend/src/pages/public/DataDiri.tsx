@@ -54,7 +54,7 @@ export default function DataDiri() {
         <div className="spot"><WaveScene /></div>
         <div>
           <h1 className="flow-title">Halo, kenalan dulu yuk</h1>
-          <p className="flow-sub">Isi data dirimu dulu. Data ini juga dipakai untuk masuk ke halaman lain, termasuk Hubungi kami.</p>
+          <p className="flow-sub">Isi data dirimu dulu. Nama dan usia harus sama dengan KTP-mu, karena nanti dicocokkan saat pindai KTP. Mendaftar lagi dengan data yang sama akan masuk ke akun yang sama.</p>
         </div>
       </div>
 

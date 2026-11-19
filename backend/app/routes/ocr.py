@@ -11,6 +11,7 @@ from app.core.errors import bad_request, not_found
 from app.models.models import Participant, KtpDocument
 from app.schemas.schemas import KtpOcrResult, KtpConfirm, ParticipantOut
 from app.services.ocr_service import run_ocr_on_image
+from app.services.identity_service import ensure_ktp_matches_profile, ensure_nik_available
 from app.services.participant_service import to_participant_out
 
 router = APIRouter(prefix="/api/ocr", tags=["ocr"])
@@ -165,9 +166,14 @@ async def upload_and_ocr_ktp(
     if want_auto:
         ok, _reason = _is_complete_for_auto_confirm(extraction)
         if ok:
+            try:
+                ensure_ktp_matches_profile(participant, nama_ktp=str(extraction.nama),
+                                           tanggal_lahir=str(extraction.tanggal_lahir).strip())
+                ensure_nik_available(db, participant, str(extraction.nik).strip())
+            except Exception:
+                ok = False  # tidak cocok dengan data diri: jangan disahkan otomatis, user periksa manual
+        if ok:
             participant.nik = str(extraction.nik).strip()
-            if extraction.nama:
-                participant.nama = str(extraction.nama).strip()
             ktp_doc.corrected_by_user = True  # dianggap terkonfirmasi (sumber: VLM, bukan koreksi manual)
             auto_confirmed = True
 
@@ -218,6 +224,10 @@ def confirm_ktp_data(payload: KtpConfirm, db: Session = Depends(get_db)):
     if not participant:
         raise not_found("Peserta tidak ditemukan", "PARTICIPANT_NOT_FOUND")
 
+    # Data diri harus sama dengan KTP: nama sama, usia sama dengan hitungan dari tanggal lahir, NIK belum dipakai akun lain.
+    ensure_ktp_matches_profile(participant, nama_ktp=payload.nama, tanggal_lahir=payload.tanggal_lahir)
+    ensure_nik_available(db, participant, payload.nik)
+
     ktp_doc = db.query(KtpDocument).filter(KtpDocument.participant_id == payload.participant_id).first()
     if not ktp_doc:
         # Alur /api/ktp/scan bersifat stateless (tidak menyimpan apa pun sebelum user konfirmasi),
@@ -234,9 +244,7 @@ def confirm_ktp_data(payload: KtpConfirm, db: Session = Depends(get_db)):
         ktp_doc.ocr_provider = payload.scan_provider
         ktp_doc.ocr_confidence = payload.scan_confidence
 
-    participant.nik = payload.nik
-    if payload.nama:
-        participant.nama = payload.nama
+    participant.nik = payload.nik  # nama tidak diubah: sudah dipastikan sama dengan KTP
 
     for field in ["tempat_lahir", "tanggal_lahir", "jenis_kelamin", "alamat", "rt_rw",
                   "kelurahan", "kecamatan", "agama", "status_perkawinan",

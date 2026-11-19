@@ -21,7 +21,7 @@ const WARGA = ["WNI", "WNA"];
 const DATE_RE = /(\d{2})[-/. ](\d{2})[-/. ](\d{4})/;
 
 interface FieldDef {
-  name: Name; label: string; kind?: "text" | "select" | "textarea";
+  name: Name; label: string; kind?: "text" | "select" | "textarea" | "date";
   options?: string[]; placeholder?: string; full?: boolean; numeric?: boolean; maxLength?: number;
 }
 const SECTIONS: { title: string; fields: FieldDef[] }[] = [
@@ -31,7 +31,7 @@ const SECTIONS: { title: string; fields: FieldDef[] }[] = [
   ] },
   { title: "Kelahiran", fields: [
     { name: "tempat_lahir", label: "Tempat lahir" },
-    { name: "tanggal_lahir", label: "Tanggal lahir", placeholder: "DD-MM-YYYY" },
+    { name: "tanggal_lahir", label: "Tanggal lahir", kind: "date" },
     { name: "jenis_kelamin", label: "Jenis kelamin", kind: "select", options: JENIS_KELAMIN },
     { name: "agama", label: "Agama", kind: "select", options: AGAMA },
   ] },
@@ -49,17 +49,24 @@ const SECTIONS: { title: string; fields: FieldDef[] }[] = [
 ];
 const ALL_NAMES: Name[] = SECTIONS.flatMap((s) => s.fields.map((f) => f.name));
 
-function validDate(v: string) {
-  const m = v.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
-  if (!m) return "Format DD-MM-YYYY";
-  const [d, mo, y] = [Number(m[1]), Number(m[2]), Number(m[3])];
-  if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 1900 || y > new Date().getFullYear()) return "Tanggal tidak valid";
-  return true;
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+const toApiDate = (iso: string) => iso.split("-").reverse().join("-");
+
+function ageFromIso(iso: string): number | null {
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const now = new Date();
+  if (y < 1900 || new Date(iso) > now) return null;
+  const before = now.getMonth() + 1 < mo || (now.getMonth() + 1 === mo && now.getDate() < d);
+  return now.getFullYear() - y - (before ? 1 : 0);
 }
+
+const nameKey = (t: string) => t.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
 
 const RULES: Partial<Record<Name, RegisterOptions<FormValues, Name>>> = {
   nik: { pattern: { value: /^[0-9]{16}$/, message: "NIK harus 16 digit angka" } },
-  tanggal_lahir: { validate: (v) => validDate(String(v ?? "").trim()) },
 };
 
 /** Map an OCR string onto one of the fixed options. Compares letters only, so
@@ -75,7 +82,7 @@ function matchOption(value: string | null | undefined, options: string[]): strin
 function splitBirth(ocr?: KtpOcrResult) {
   const src = `${ocr?.tempat_lahir ?? ""} ${ocr?.tanggal_lahir ?? ""}`;
   const m = src.match(DATE_RE);
-  const date = m ? `${m[1]}-${m[2]}-${m[3]}` : "";
+  const date = m ? `${m[3]}-${m[2]}-${m[1]}` : ""; // yyyy-mm-dd untuk kolom kalender
   let place = (ocr?.tempat_lahir ?? "").replace(DATE_RE, "").replace(/[,\s]+$/, "").trim();
   if (/lahir/i.test(place) || place.length < 2) place = "";
   return { place, date };
@@ -126,7 +133,7 @@ function initialValues(ocr?: KtpOcrResult): FormValues {
 export default function KtpConfirm() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { participantId, refreshProfile } = useScreening();
+  const { participantId, profile, refreshProfile } = useScreening();
   const { showToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
@@ -144,6 +151,16 @@ export default function KtpConfirm() {
   const values = watch();
   const filled = ALL_NAMES.filter((n) => String(values[n] ?? "").trim() !== "").length;
   const total = ALL_NAMES.length;
+
+  // Data diri harus sama dengan KTP: nama sama, dan usia sama dengan hitungan dari tanggal lahir.
+  const nameMismatch = !!profile && nameKey(String(values.nama ?? "")) !== "" && nameKey(String(values.nama)) !== nameKey(profile.nama);
+  const ktpAge = ageFromIso(String(values.tanggal_lahir ?? ""));
+  const ageMismatch = !!profile && ktpAge !== null && ktpAge !== profile.usia;
+  const mismatchMsg: Partial<Record<Name, string>> = {
+    nama: nameMismatch && profile ? `Nama di KTP harus sama dengan data dirimu: "${profile.nama}".` : undefined,
+    tanggal_lahir: ageMismatch && profile ? `Dari tanggal ini usiamu ${ktpAge} tahun, sedangkan di data dirimu ${profile.usia} tahun. Usia harus sama.` : undefined,
+  };
+  const blocked = nameMismatch || ageMismatch;
 
   if (!participantId) return <Navigate to="/data-diri" replace />;
   // The scan result travels in router state, so a refresh loses it. Start again from the photo step.
@@ -163,6 +180,7 @@ export default function KtpConfirm() {
     setSubmitting(true);
     try {
       const clean = Object.fromEntries(ALL_NAMES.map((n) => [n, String(v[n]).trim()])) as unknown as FormValues;
+      clean.tanggal_lahir = toApiDate(clean.tanggal_lahir);
       await confirmKtp({
         participant_id: participantId, ...clean,
         ...(scan ? { scan_provider: scan.provider, scan_confidence: Math.round((scan.overall_confidence ?? 0) * 100) } : {}),
@@ -185,13 +203,14 @@ export default function KtpConfirm() {
       ...RULES[f.name],
     };
     // when a field has its own validate, keep the "not blank" check too
-    if (f.name === "tanggal_lahir") rules.validate = (val) => (String(val ?? "").trim() === "" ? "Wajib diisi" : validDate(String(val).trim()));
+    if (f.name === "tanggal_lahir") rules.validate = (val) => (String(val ?? "").trim() === "" ? "Pilih tanggal lahir" : ageFromIso(String(val)) === null ? "Tanggal tidak valid" : true);
+    const mism = mismatchMsg[f.name];
     const err = errors[f.name];
-    const ok = String(values[f.name] ?? "").trim() !== "" && !err;
+    const ok = String(values[f.name] ?? "").trim() !== "" && !err && !mism;
     const flag = flagFor(f.name);
 
     return (
-      <div key={f.name} className={`form-group ${f.full ? "field-full" : ""} ${err ? "has-error" : ok ? "is-ok" : ""} ${flag && !err ? `fg-${flag.kind}` : ""}`}>
+      <div key={f.name} className={`form-group ${f.full ? "field-full" : ""} ${err || mism ? "has-error" : ok ? "is-ok" : ""} ${flag && !err ? `fg-${flag.kind}` : ""}`}>
         <div className="label-row">
           <label htmlFor={id}>{f.label}</label>
           {flag && <span className={`field-flag flag-${flag.kind}`}>{flag.text}</span>}
@@ -201,13 +220,16 @@ export default function KtpConfirm() {
             <option value="">Pilih...</option>
             {f.options!.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
+        ) : f.kind === "date" ? (
+          <input id={id} type="date" className="form-control" min="1900-01-01" max={todayIso()} {...register(f.name, rules)} />
         ) : f.kind === "textarea" ? (
           <textarea id={id} className="form-control" rows={2} {...register(f.name, rules)} />
         ) : (
           <input id={id} className="form-control" placeholder={f.placeholder} maxLength={f.maxLength}
             inputMode={f.numeric ? "numeric" : undefined} autoComplete="off" {...register(f.name, rules)} />
         )}
-        {err && <div className="form-error">{String(err.message ?? "Wajib diisi")}</div>}
+        {err ? <div className="form-error">{String(err.message ?? "Wajib diisi")}</div>
+          : mism ? <div className="form-error" role="alert">{mism}</div> : null}
       </div>
     );
   };
@@ -258,7 +280,8 @@ export default function KtpConfirm() {
           </section>
         ))}
 
-        <button className="btn btn-primary btn-block btn-lg" disabled={submitting} type="submit">
+        {blocked && <div className="notice" role="alert">Data KTP harus sama dengan data dirimu (nama dan usia). Perbaiki kolom yang bertanda merah supaya bisa disimpan.</div>}
+        <button className="btn btn-primary btn-block btn-lg" disabled={submitting || blocked} type="submit">
           {submitting ? "Sebentar ya..." : "Konfirmasi KTP"}
         </button>
         {scan && (

@@ -1,3 +1,4 @@
+from tests.conftest import dob
 def test_create_participant_success(client):
     r = client.post("/api/participants", json={
         "nama": "Test User", "usia": 25, "jabatan": "Programmer", "no_hp": "081234567890", "email": "user@example.com",
@@ -34,7 +35,7 @@ def test_create_participant_free_text_jabatan_accepted(client):
 # ---------- KTP confirmation: every field is mandatory ----------
 KTP_FULL = {
     "nik": "3171234567890123", "nama": "Budi Santoso", "tempat_lahir": "Bogor",
-    "tanggal_lahir": "01-02-1995", "jenis_kelamin": "LAKI-LAKI", "alamat": "Jl. Merdeka No. 1",
+    "tanggal_lahir": dob(30), "jenis_kelamin": "LAKI-LAKI", "alamat": "Jl. Merdeka No. 1",
     "rt_rw": "001/002", "kelurahan": "Sukajadi", "kecamatan": "Bogor Barat", "agama": "Islam",
     "status_perkawinan": "Kawin", "pekerjaan_ktp": "Karyawan Swasta", "kewarganegaraan": "WNI",
 }
@@ -43,7 +44,7 @@ KTP_FULL = {
 def _participant_with_ktp(client, db):
     from app.models.models import KtpDocument
     r = client.post("/api/participants", json={
-        "nama": "Budi", "usia": 30, "jabatan": "Staff", "no_hp": "081234567890", "email": "user@example.com"})
+        "nama": "Budi Santoso", "usia": 30, "jabatan": "Staff", "no_hp": "081234567890", "email": "user@example.com"})
     assert r.status_code == 201, r.text
     pid = r.json()["id"]
     db.add(KtpDocument(participant_id=pid))
@@ -107,7 +108,7 @@ def test_email_is_normalized(client):
 
 # ---------- profile ----------
 def test_get_profile_reports_ktp_and_session_state(client, db):
-    pid = client.post("/api/participants", json=_body()).json()["id"]
+    pid = client.post("/api/participants", json=_body(nama="Budi Santoso", usia=30)).json()["id"]
     r = client.get(f"/api/participants/{pid}")
     assert r.status_code == 200
     body = r.json()

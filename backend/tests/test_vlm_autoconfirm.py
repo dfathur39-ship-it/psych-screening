@@ -1,12 +1,13 @@
 """Auto-confirm: lengkap -> langsung confirmed, tidak lengkap -> manual."""
+from tests.conftest import dob
 from app.routes.ocr import _is_complete_for_auto_confirm
 from app.services.ocr_service import OcrExtraction
 
 
 def _full(**over):
     base = dict(
-        raw_text="x", nik="3171234567890123", nama="BUDI SANTOSO",
-        tempat_lahir="BOGOR", tanggal_lahir="01-02-1995", jenis_kelamin="LAKI-LAKI",
+        raw_text="x", nik="3171234567890123", nama="Flow Tester",
+        tempat_lahir="BOGOR", tanggal_lahir=dob(30), jenis_kelamin="LAKI-LAKI",
         alamat="JL MERDEKA NO 1", rt_rw="001/002", kelurahan="SUKAJADI",
         kecamatan="BOGOR BARAT", agama="ISLAM", status_perkawinan="KAWIN",
         pekerjaan_ktp="KARYAWAN SWASTA", kewarganegaraan="WNI",

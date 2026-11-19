@@ -135,7 +135,7 @@ async def scan_ktp(
                if not needs_review else
                "Data KTP berhasil dibaca, tetapi beberapa kolom perlu diperiksa. Silakan periksa kembali.")
     if fallback_used:
-        message += " (AI tidak tersedia, dipakai OCR Tesseract.)"
+        message += " (pembaca utama tidak tersedia, dipakai pembaca cadangan.)"
     logger.info(
         "ktp_scan ok provider=%s model=%s filled=%d review=%d preprocessed=%s ms=%d",
         extraction.provider, extraction.model, validated.filled_count, len(needs_review),
